@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { colorTheme } from "../components/ColorTheme";
-import { doctors as doctorsData } from "../assets/assets"; // ✅ استدعاء الأطباء الحقيقيين
+import { doctors as doctorsData } from "../assets/assets"; 
 import { useNavigate } from "react-router-dom";
 
 
@@ -12,7 +12,7 @@ const Doctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
-  const doctorsPerPage = 10; // 🔥 كم دكتور بالصفحة
+  const doctorsPerPage = 10; 
 
   useEffect(() => {
     setFilteredDoctors(doctorsData);
@@ -50,7 +50,7 @@ const Doctors = () => {
     }
 
     setFilteredDoctors(results);
-    setCurrentPage(1); // عند الفلترة ترجع لأول صفحة
+    setCurrentPage(1); 
   }, [activeFilter, searchTerm]);
 
   const specialties = ["All", ...new Set(doctorsData.map(d => d.speciality))];
@@ -83,7 +83,7 @@ const Doctors = () => {
   return (
     <div className="bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       
-      {/* -- Header -- */}
+     
       <div className="max-w-7xl mx-auto text-center mb-12">
         <h1 className={`text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${colorTheme.primary.gradient}`}>
           Our Expert Doctors
@@ -93,11 +93,11 @@ const Doctors = () => {
         </p>
       </div>
 
-      {/* -- Search and Filters -- */}
+      
       <div className="max-w-7xl mx-auto mb-10">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white rounded-lg shadow-sm p-4">
           
-          {/* Search Input */}
+         
           <div className="relative w-full md:w-auto">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,7 +113,7 @@ const Doctors = () => {
             />
           </div>
 
-          {/* Specialty Filters */}
+          
           <div className="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
             {specialties.slice(0, 8).map((specialty) => (
               <button
@@ -152,7 +152,7 @@ const Doctors = () => {
         </div>
       </div>
 
-      {/* -- Doctors Grid -- */}
+      
       <div id="doctors-container" className={`max-w-7xl mx-auto transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {paginatedDoctors.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -178,7 +178,7 @@ const Doctors = () => {
                     <p className="text-sm text-gray-500">{doctor.experience}</p>
                     <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent parent card click
+                      e.stopPropagation(); 
                        handleDoctorSelection(doctor._id);
                     }}
                      className={`w-full py-2 mt-2 rounded-lg bg-gradient-to-r ${color.gradient} text-white font-medium`}
@@ -215,7 +215,7 @@ const Doctors = () => {
         )}
       </div>
 
-      {/* -- Pagination Section -- */}
+      
       {totalPages > 1 && (
         <div className="max-w-7xl mx-auto mt-8 flex justify-center">
           <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">

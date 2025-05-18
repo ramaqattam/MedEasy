@@ -13,8 +13,10 @@ connectCloudinary();
 
 //Middlewares
 app.use(cors());
-app.use('/api/admin',adminRouter)
 app.use(express.json());
+
+
+app.use('/api/admin',adminRouter)
 
 
 app.get('/', (req, res) => {

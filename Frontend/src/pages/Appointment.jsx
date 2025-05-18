@@ -1,4 +1,3 @@
-// src/pages/Appointment.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doctors as doctorsData } from "../assets/assets";
@@ -68,11 +67,10 @@ const Appointment = () => {
         </div>
       </div>
 
-      {/* Booking Section */}
       <div className="mt-10">
         <h3 className="text-lg font-semibold mb-3">Booking slots</h3>
 
-        {/* Dates */}
+        
         <div className="flex gap-3 overflow-auto mb-6">
           {getNext7Days().map((d) => {
             const label = d.toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
@@ -93,7 +91,6 @@ const Appointment = () => {
           })}
         </div>
 
-        {/* Times */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           {timeSlots.map((time) => (
             <button
@@ -110,7 +107,6 @@ const Appointment = () => {
           ))}
         </div>
 
-        {/* Book Button */}
         {!bookingConfirmed ? (
           <button
             onClick={handleBooking}

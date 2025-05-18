@@ -1,13 +1,12 @@
-// TopDoctors.jsx
 import React, { useState, useEffect } from "react";
 import { colorTheme } from "./ColorTheme";
-import { doctors } from "../assets/assets"; // ✅ استدعاء الدكاترة من ملف assets مباشرة
-import { useNavigate } from "react-router-dom"; // ✅ استيراد useNavigate للتنقل بين الصفحات
+import { doctors } from "../assets/assets"; 
+import { useNavigate } from "react-router-dom";
 
 const TopDoctors = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredDoc, setHoveredDoc] = useState(null);
-  const navigate = useNavigate(); // ✅ تهيئة useNavigate
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -28,7 +27,6 @@ const TopDoctors = () => {
   }, []);
 
   const handleDoctorClick = (id) => {
-    // ✅ استخدام navigate للانتقال إلى صفحة التفاصيل
     navigate(`/appointment/${id}`);
     window.scrollTo(0, 0);
   };
@@ -47,7 +45,6 @@ const TopDoctors = () => {
       className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10 relative"
       id="top-doctors"
     >
-      {/* Background elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute top-10 right-1/4 w-64 h-64 rounded-full bg-gradient-to-r from-emerald-200 to-teal-100 opacity-20 blur-3xl"></div>
         <div className="absolute -bottom-10 left-1/3 w-72 h-72 rounded-full bg-gradient-to-r from-amber-200 to-orange-100 opacity-20 blur-3xl"></div>
@@ -69,7 +66,7 @@ const TopDoctors = () => {
         className={`w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-5 gap-y-6 px-3 sm:px-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
         style={{ transitionDelay: '400ms' }}
       >
-        {doctors.slice(0, 10).map((item, index) => { // ✅ نعرض فقط أول 10 دكاترة
+        {doctors.slice(0, 10).map((item, index) => { 
           const color = getColor(index);
           return (
             <div
@@ -141,7 +138,6 @@ const TopDoctors = () => {
 
       <button
         onClick={() => {
-          // ✅ استخدام navigate للانتقال إلى صفحة جميع الأطباء
           navigate('/doctors');
           window.scrollTo(0, 0);
         }}
