@@ -17,7 +17,7 @@ const authAdmin = async (req, res, next) => {
         .status(403)
         .json({ success: false, message: "Not Unauthorized" });
     }
-
+    
     next();
   } catch (error) {
     console.log(error);
