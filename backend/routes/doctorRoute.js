@@ -19,6 +19,9 @@ doctorRouter.post('/login', loginDoctor);
 // Protected routes
 doctorRouter.get('/profile/:doctorId', authDoctor, getDoctorProfile);
 doctorRouter.put('/profile/:doctorId', authDoctor, upload.single('image'), updateDoctorProfile);
+
+
+///
 doctorRouter.get('/stats/:doctorId', authDoctor, getDoctorStats);
 doctorRouter.get('/patients/:doctorId', authDoctor, getDoctorPatients);
 doctorRouter.put('/availability/:doctorId', authDoctor, updateAvailability);

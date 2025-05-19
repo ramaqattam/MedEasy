@@ -346,15 +346,6 @@ const updateAppointmentStatus = async (req, res) => {
         message: "Appointment not found"
       });
     }
-    
-    // Check if appointment belongs to this doctor
-    // if (appointment.doctor.toString() !== req.doctor.id) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: "Not authorized to update this appointment"
-    //   });
-    // }
-    
     // If appointment is already completed or cancelled, don't allow status change
     if (['completed', 'cancelled'].includes(appointment.status)) {
       return res.status(400).json({

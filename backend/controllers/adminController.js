@@ -303,10 +303,6 @@ const getDashboardStats = async (req, res) => {
 // Helper function to calculate revenue growth (placeholder)
 const calculateRevenueGrowth = async () => {
   try {
-    // In a real app, you would calculate this from actual revenue data
-    // This is just a placeholder implementation
-    
-    // For example, you might:
     // 1. Get completed appointments for current and previous month
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();

@@ -22,7 +22,9 @@ const patientRouter = express.Router();
 patientRouter.get('/top-doctors', getTopDoctors);
 patientRouter.get('/doctors', getAllDoctorsWithFilters);
 patientRouter.get('/doctors/:doctorId', getDoctorDetails);
+
 patientRouter.get('/doctors/:doctorId/available-slots/:date', getAvailableSlots);
+
 patientRouter.get('/specialities', getSpecialities);
 
 // Authentication routes
