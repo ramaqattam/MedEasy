@@ -1,58 +1,61 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { DoctorContext } from '../context/DoctorContext';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { DoctorContext } from "../context/DoctorContext";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { loginDoctor } = useContext(DoctorContext);
   const navigate = useNavigate();
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!email || !password) {
-        toast.error('Please enter both email and password');
-        return;
+      toast.error("Please enter both email and password");
+      return;
     }
 
     try {
-        setLoading(true);
-        
-        const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/doctor/login`, {
-            email,
-            password
+      setLoading(true);
+
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/doctor/login`,
+        {
+          email,
+          password,
+        }
+      );
+
+      if (data.success) {
+        // Store doctor info in context
+        loginDoctor(data.token, {
+          id: data.doctor.id,
+          name: data.doctor.name,
+          email: data.doctor.email,
+          speciality: data.doctor.speciality,
+          Image: data.doctor.image,
+          available: true, // Default to available
         });
 
-        if (data.success) {
-            // Store doctor info in context
-            loginDoctor(data.token, {
-                id: data.doctor.id,
-                name: data.doctor.name,
-                email: data.doctor.email,
-                speciality: data.doctor.speciality,
-                Image: data.doctor.image,
-                available: true // Default to available
-            });
-
-            toast.success('Login successful');
-            navigate('/dashboard');
-        } else {
-            toast.error(data.message || 'Login failed');
-        }
+        toast.success("Login successful");
+        navigate("/dashboard");
+      } else {
+        toast.error(data.message || "Login failed");
+      }
     } catch (error) {
-        toast.error(error.response?.data?.message || 'Something went wrong');
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -67,8 +70,8 @@ const handleSubmit = async (e) => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email Input */}
             <div>
-              <label 
-                htmlFor="email" 
+              <label
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
                 Email address
@@ -93,8 +96,8 @@ const handleSubmit = async (e) => {
 
             {/* Password Input */}
             <div>
-              <label 
-                htmlFor="password" 
+              <label
+                htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
                 Password
@@ -126,17 +129,6 @@ const handleSubmit = async (e) => {
               </div>
             </div>
 
-            {/* Forgot Password Link */}
-            <div className="flex items-center justify-end">
-              <div className="text-sm">
-                <a 
-                  href="/forgot-password" 
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  Forgot password?
-                </a>
-              </div>
-            </div>
 
             {/* Submit Button */}
             <div>
@@ -144,38 +136,15 @@ const handleSubmit = async (e) => {
                 type="submit"
                 disabled={loading}
                 className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  loading 
-                    ? 'bg-blue-400 cursor-not-allowed' 
-                    : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                  loading
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 }`}
               >
-                {loading ? 'Logging in...' : 'Sign in'}
+                {loading ? "Logging in..." : "Sign in"}
               </button>
             </div>
           </form>
-
-          {/* Registration Link */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Don't have an account?
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={() => navigate('/register')}
-                className="w-full flex justify-center py-2 px-4 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50"
-              >
-                Register as a Doctor
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

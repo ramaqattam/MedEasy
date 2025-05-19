@@ -1,10 +1,10 @@
 import validator from "validator";
-import bycrypt from "bcrypt";
+import bycrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import dctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
-import userModel from "../models/userModel.js";  // Import the patient/user model
-import appointmentModel from "../models/appointmentModel.js"; // Import appointment model
+import userModel from "../models/userModel.js";  
+import appointmentModel from "../models/appointmentModel.js"; 
 
 const addDoctor = async (req, res) => {
   try {
