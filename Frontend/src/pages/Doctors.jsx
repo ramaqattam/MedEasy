@@ -314,43 +314,6 @@ const Doctors = () => {
         )}
       </div>
 
-      {/* Fallback cards display - just to ensure something shows up */}
-      {paginatedDoctors.length === 0 && fallbackDoctors.length > 0 && (
-        <div className="max-w-7xl mx-auto mt-8">
-          <div className="bg-yellow-100 p-4 rounded-md mb-4">
-            <h3 className="font-bold">Fallback Data (Debug Only):</h3>
-            <p>Showing static data as a fallback since no doctors were found in API response.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {fallbackDoctors.slice(0, 4).map((doctor, index) => {
-              const color = getColor(index);
-              return (
-                <div key={index} className="bg-white rounded-xl overflow-hidden shadow-md border border-yellow-300">
-                  <div className="relative">
-                    <img 
-                      className="w-full h-48 object-cover object-center bg-gray-100" 
-                      src={doctor.image} 
-                      alt={doctor.name}
-                    />
-                    <div className={`absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-xs font-medium ${color.text}`}>
-                      {doctor.speciality}
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">{doctor.name}</h3>
-                    <p className="text-sm text-gray-500">{doctor.experience}</p>
-                    <button
-                      className={`w-full py-2 mt-4 rounded-lg bg-gradient-to-r ${color.gradient} text-white font-medium`}
-                    >
-                      Book Appointment (STATIC)
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {totalPages > 1 && (
         <div className="max-w-7xl mx-auto mt-8 flex justify-center">
