@@ -27,6 +27,6 @@ doctorRouter.put('/availability/:doctorId', authDoctor, updateAvailability);
 
 // Appointment routes
 doctorRouter.get('/doctor-appointments/:doctorId', authDoctor, getDoctorAppointments);
-doctorRouter.put('/appointment/:appointmentId', updateAppointmentStatus);
+doctorRouter.put('/appointment/:appointmentId',authDoctor, updateAppointmentStatus);
 
 export default doctorRouter;
