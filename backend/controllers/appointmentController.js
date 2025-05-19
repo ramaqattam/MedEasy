@@ -1,5 +1,5 @@
 import appointmentModel from "../models/appointmentModel.js";
-import dctorModel from "../models/doctorModel.js";
+import doctorModel from "../models/doctorModel.js";
 import userModel from "../models/userModel.js";
 
 // Create new appointment
@@ -16,7 +16,7 @@ const createAppointment = async (req, res) => {
     }
 
     // Check if doctor exists
-    const doctor = await dctorModel.findById(doctorId);
+    const doctor = await doctorModel.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({ 
         success: false, 
@@ -178,7 +178,7 @@ const updateAppointmentStatus = async (req, res) => {
     
     // If appointment is being cancelled, update doctor's booked slots
     if (status === 'cancelled' && appointment.status !== 'cancelled') {
-      const doctor = await dctorModel.findById(appointment.doctor);
+      const doctor = await doctorModel.findById(appointment.doctor);
       const dateString = appointment.date.toISOString().split('T')[0];
       
       if (doctor && doctor.slots_booked[dateString]) {
@@ -216,7 +216,7 @@ const getAvailableSlots = async (req, res) => {
     const { doctorId, date } = req.params;
     
     // Check if doctor exists
-    const doctor = await dctorModel.findById(doctorId);
+    const doctor = await doctorModel.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({ 
         success: false, 

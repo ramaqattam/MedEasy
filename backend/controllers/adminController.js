@@ -1,7 +1,7 @@
 import validator from "validator";
 import bycrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
-import dctorModel from "../models/doctorModel.js";
+import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";  
 import appointmentModel from "../models/appointmentModel.js"; 
@@ -81,7 +81,7 @@ const addDoctor = async (req, res) => {
             date: Date.now(),
      }
 
-     const newDoctor = new dctorModel(doctoData)
+     const newDoctor = new doctorModel(doctoData)
       await newDoctor.save();
 
       res.json({success:true,message:"Doctor added successfully"})
@@ -117,7 +117,7 @@ const loginAdmin = async (req, res) => {
 
 const getAllDoctors = async (req, res) => {
   try {
-    const doctors = await dctorModel.find({}).select('-password'); // Exclude passwords from response
+    const doctors = await doctorModel.find({}).select('-password'); // Exclude passwords from response
     res.status(200).json({
       success: true,
       doctors
@@ -166,7 +166,7 @@ const updateDoctor = async (req, res) => {
     }
 
     // Find the doctor
-    const doctor = await dctorModel.findById(id);
+    const doctor = await doctorModel.findById(id);
     if (!doctor) {
       return res.status(404).json({ message: "Doctor not found" });
     }
@@ -199,7 +199,7 @@ const updateDoctor = async (req, res) => {
     }
 
     // Update the doctor
-    const updatedDoctor = await dctorModel.findByIdAndUpdate(
+    const updatedDoctor = await doctorModel.findByIdAndUpdate(
       id,
       updateData,
       { new: true }
@@ -223,7 +223,7 @@ const getDashboardStats = async (req, res) => {
     const totalPatients = await userModel.countDocuments();
     
     // Get total number of doctors
-    const totalDoctors = await dctorModel.countDocuments();
+    const totalDoctors = await doctorModel.countDocuments();
     
     // Get today's appointments count
     const today = new Date();

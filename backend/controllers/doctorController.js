@@ -299,7 +299,7 @@ const updateAvailability = async (req, res) => {
     }
     
     // Find doctor by ID using the model with the typo
-    const doctor = await dctorModel.findById(doctorId);
+    const doctor = await doctorModel.findById(doctorId);
     if (!doctor) {
       return res.status(404).json({ 
         success: false, 
