@@ -6,6 +6,7 @@ import connectCloudinary from './config/cloudinary.js';
 import adminRouter from './routes/adminRoute.js';
 import userModel from './models/userModel.js'; // ✅ add this
 import doctorRouter from './routes/doctorRoute.js';
+import patientRouter from './routes/patientRoute.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/admin', adminRouter);
 app.use('/api/doctor', doctorRouter);
+app.use('/api/patient', patientRouter);
 app.get('/', (req, res) => {
     res.send('Hello World!')
 });

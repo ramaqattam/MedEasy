@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, LogIn, Mail, Lock } from "lucide-react";
 import { colorTheme } from "../components/ColorTheme";
-
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 const Login = () => {
+  const navigate = useNavigate();
+  const { login, error: authError, clearError, isAuthenticated, currentUser } = useAuth();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -11,23 +15,29 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userType, setUserType] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
-  // Simulate page load animation
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Page load animation
   useEffect(() => {
     setTimeout(() => {
       setIsLoaded(true);
     }, 300);
   }, []);
 
-  // For navigation to register page (this would use react-router-dom in a real app)
-  const navigateToRegister = () => {
-    // In a real app with react-router-dom, this would be: navigate('/register');
-    window.location.href = "/register";
-  };
+  // Display auth errors
+  useEffect(() => {
+    if (authError) {
+      setErrorMessage(authError);
+    }
+  }, [authError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,13 +45,17 @@ const Login = () => {
       ...formData,
       [name]: value,
     });
-    // Clear error for this field when user starts typing
+    
+    // Clear error for this field and global error messages
     if (errors[name]) {
       setErrors({
         ...errors,
         [name]: "",
       });
     }
+    
+    setErrorMessage("");
+    clearError();
   };
 
   const validate = () => {
@@ -51,11 +65,13 @@ const Login = () => {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
     }
+    
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
+    
     return newErrors;
   };
 
@@ -72,27 +88,14 @@ const Login = () => {
     setErrorMessage("");
 
     try {
-      // Simulate API call to backend
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // For demo purposes only - simulate different user types
-      const email = formData.email.toLowerCase();
-      let newUserType = null;
-
-      if (email.includes("admin")) {
-        newUserType = "admin";
-      } else if (email.includes("doctor")) {
-        newUserType = "doctor";
-      } else {
-        newUserType = "patient";
+      const result = await login(formData);
+      if (!result.success) {
+        setErrorMessage(result.message);
       }
-
-      setUserType(newUserType);
-      setLoggedIn(true);
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
-        "Login failed. Please check your credentials and try again."
+        error.message || "Login failed. Please check your credentials and try again."
       );
     } finally {
       setLoading(false);
@@ -131,34 +134,6 @@ const Login = () => {
       </div>
     );
   };
-
-  if (loggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 to-emerald-100 flex items-center justify-center px-4 py-12 relative overflow-hidden">
-        <FloatingParticles />
-        <div className={`w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden p-8 transition-all duration-1000 transform ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-teal-400 to-emerald-500 flex items-center justify-center">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className={`text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r ${colorTheme.primary.gradient} mb-4`}>
-            Welcome to MedEasy!
-          </h2>
-          <p className="text-center text-gray-700 mb-6">
-            You are successfully logged in as a{" "}
-            <span className={`font-bold ${colorTheme.primary.text}`}>{userType}</span>.
-          </p>
-          <button
-            onClick={() => setLoggedIn(false)}
-            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r ${colorTheme.primary.gradient} hover:shadow-lg transform transition-all duration-300 hover:translate-y-[-2px]`}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50 to-emerald-100 flex items-center justify-center px-4 py-12 relative overflow-hidden">
@@ -314,12 +289,12 @@ const Login = () => {
                 </div>
 
                 <div className="text-sm">
-                  
-                   <a href="#"
+                  <Link
+                    to="/forgot-password"
                     className={`font-medium ${colorTheme.primary.text} hover:text-emerald-700 transition-colors duration-200`}
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
 
@@ -345,21 +320,15 @@ const Login = () => {
               </div>
             </form>
 
-          
-
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
-                
-                <a  href="/register"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigateToRegister();
-                  }}
+                <Link
+                  to="/register"
                   className={`font-medium ${colorTheme.primary.text} hover:text-emerald-700 transition-colors duration-200`}
                 >
                   Sign up now
-                </a>
+                </Link>
               </p>
             </div>
           </div>

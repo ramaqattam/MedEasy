@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { enUS } from "date-fns/locale";
+import { useAuth } from "../context/AuthContext";
+
 
 const Register = () => {
   const navigate = useNavigate();
+  const { registerPatient, error: authError, clearError, isAuthenticated } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,21 +22,67 @@ const Register = () => {
     dateOfBirth: null,
     gender: "",
     termsAccepted: false,
+    image: null
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [preview, setPreview] = useState(null);
 
-  const navigateToLogin = () => {
-    navigate("/login");
-  };
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Display auth errors
+  useEffect(() => {
+    if (authError) {
+      setErrors({ general: authError });
+    }
+  }, [authError]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    const { name, value, type, checked, files } = e.target;
+
+    if (type === "file" && files.length > 0) {
+      const file = files[0];
+      // Check if file is an image
+      if (!file.type.match('image.*')) {
+        setErrors({
+          ...errors,
+          [name]: "Please select an image file (jpg, png, etc.)"
+        });
+        return;
+      }
+
+      // Check file size
+      if (file.size > 5 * 1024 * 1024) { // 5MB max
+        setErrors({
+          ...errors,
+          [name]: "Image file size should be less than 5MB"
+        });
+        return;
+      }
+
+      setFormData({
+        ...formData,
+        [name]: file
+      });
+
+      // Create a preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData({
+        ...formData,
+        [name]: type === "checkbox" ? checked : value,
+      });
+    }
 
     if (errors[name]) {
       setErrors({
@@ -40,6 +90,18 @@ const Register = () => {
         [name]: "",
       });
     }
+
+    if (name === 'password' || name === 'confirmPassword') {
+      // Clear confirmPassword error if either password field changes
+      if (errors.confirmPassword) {
+        setErrors({
+          ...errors,
+          confirmPassword: ""
+        });
+      }
+    }
+
+    clearError();
   };
 
   const validate = () => {
@@ -96,19 +158,37 @@ const Register = () => {
     }
 
     setLoading(true);
+    setErrors({});
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setSuccessMessage(
-        "Account created successfully! Redirecting to login page..."
-      );
-      setTimeout(() => {
-        navigateToLogin();
-      }, 2000);
+      // Prepare data for API
+      const userData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        image: formData.image
+      };
+
+      const result = await registerPatient(userData);
+
+      if (result.success) {
+        setSuccessMessage(result.message || "Account created successfully!");
+        // If auto-login is not enabled in the context, redirect to login
+        if (!isAuthenticated) {
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        }
+      } else {
+        setErrors({ general: result.message || "Registration failed" });
+      }
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({
-        general: "An error occurred during registration. Please try again.",
+        general: error.message || "An error occurred during registration. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -140,6 +220,36 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Profile Image */}
+              <div className="md:col-span-2 flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-emerald-300 flex items-center justify-center mb-2">
+                  {preview ? (
+                    <img src={preview} alt="Profile Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  )}
+                </div>
+                <label
+                  htmlFor="image"
+                  className="text-sm font-medium text-emerald-600 hover:text-emerald-500 cursor-pointer"
+                >
+                  Upload Profile Photo
+                </label>
+                <input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="hidden"
+                />
+                {errors.image && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.image}</p>
+                )}
+              </div>
+
               {/* Full Name */}
               <div>
                 <label
@@ -155,9 +265,8 @@ const Register = () => {
                   autoComplete="name"
                   value={formData.fullName}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.fullName ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.fullName ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="John Doe"
                 />
                 {errors.fullName && (
@@ -180,9 +289,8 @@ const Register = () => {
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="your.email@example.com"
                 />
                 {errors.email && (
@@ -205,9 +313,8 @@ const Register = () => {
                   autoComplete="tel"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.phoneNumber ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.phoneNumber ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="+962 780 078 0133"
                 />
                 {errors.phoneNumber && (
@@ -225,28 +332,19 @@ const Register = () => {
                 >
                   Date of Birth
                 </label>
-                <DatePicker
+                <input
                   id="dateOfBirth"
-                  selected={formData.dateOfBirth}
-                  onChange={(date) =>
-                    setFormData({ ...formData, dateOfBirth: date })
+                  name="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth ? formData.dateOfBirth.toISOString().split('T')[0] : ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dateOfBirth: new Date(e.target.value) })
                   }
-                  dateFormat="dd/MM/yyyy"
-                  locale={enUS}
-                  placeholderText="Select your date of birth"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select"
-                  maxDate={new Date()}
-                  minDate={new Date(1900, 0, 1)}
-                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.dateOfBirth ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.dateOfBirth ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.dateOfBirth && (
-                  <p className="mt-1 text-red-500 text-xs">
-                    {errors.dateOfBirth}
-                  </p>
+                  <p className="mt-1 text-red-500 text-xs">{errors.dateOfBirth}</p>
                 )}
               </div>
 
@@ -266,9 +364,8 @@ const Register = () => {
                     autoComplete="new-password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                      errors.password ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.password ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder="**********"
                   />
                   <button
@@ -281,6 +378,9 @@ const Register = () => {
                 </div>
                 {errors.password && (
                   <p className="mt-1 text-red-500 text-xs">{errors.password}</p>
+
+
+
                 )}
               </div>
 
@@ -300,11 +400,10 @@ const Register = () => {
                     autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                      errors.confirmPassword
+                    className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.confirmPassword
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                     placeholder="************"
                   />
                   <button
@@ -339,9 +438,8 @@ const Register = () => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                    errors.gender ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${errors.gender ? "border-red-500" : "border-gray-300"
+                    }`}
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -368,9 +466,14 @@ const Register = () => {
               <div className="ml-3 text-sm">
                 <label htmlFor="termsAccepted" className="text-gray-700">
                   I agree to the{" "}
-                  <a
-                    href="#"
+
+                  <a href="#"
                     className="text-emerald-600 hover:text-emerald-500"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // In a real app, you might open a modal with terms here
+                      alert("Terms and conditions would be displayed here.");
+                    }}
                   >
                     Terms and Conditions
                   </a>

@@ -1,11 +1,12 @@
-// Banner.jsx
 import React, { useState, useEffect } from 'react';
 import { assets } from '../assets/assets';
 import { colorTheme } from './ColorTheme';
+import { useNavigate } from 'react-router-dom';
 
-const Banner = () => {
+const Banner = ({ isAuthenticated }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -26,9 +27,12 @@ const Banner = () => {
   }, []);
 
   const handleNavigation = () => {
-    console.log('Navigating to /login');
+    if (isAuthenticated) {
+      navigate('/doctors');
+    } else {
+      navigate('/login');
+    }
     window.scrollTo(0, 0);
-    // In a real implementation, navigate('/login') would be called here
   };
 
   return (
@@ -80,7 +84,7 @@ const Banner = () => {
           }}
         >
           <span className="relative z-10 transition-all duration-300 group-hover:text-white">
-            Create Account
+            {isAuthenticated ? "Find Doctors" : "Sign In to Book"}
           </span>
           <div 
             className={`absolute inset-0 bg-gradient-to-r ${colorTheme.secondary.gradient} transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100`}
