@@ -36,7 +36,7 @@ const seedDoctors = async () => {
           line2: faker.location.secondaryAddress(),
         },
         date: faker.date.recent().getTime(),
-        slots_bokked: {},
+        slots_booked: {},
       };
 
       doctors.push(doctor);

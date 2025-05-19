@@ -79,10 +79,10 @@ const createAppointment = async (req, res) => {
 
     // Update doctor's booked slots
     // This depends on your implementation, but here's a simple approach
-    if (!doctor.slots_bokked[dateString]) {
-      doctor.slots_bokked[dateString] = [];
+    if (!doctor.slots_booked[dateString]) {
+      doctor.slots_booked[dateString] = [];
     }
-    doctor.slots_bokked[dateString].push(slot);
+    doctor.slots_booked[dateString].push(slot);
     await doctor.save();
 
     res.status(201).json({
@@ -181,8 +181,8 @@ const updateAppointmentStatus = async (req, res) => {
       const doctor = await dctorModel.findById(appointment.doctor);
       const dateString = appointment.date.toISOString().split('T')[0];
       
-      if (doctor && doctor.slots_bokked[dateString]) {
-        doctor.slots_bokked[dateString] = doctor.slots_bokked[dateString].filter(
+      if (doctor && doctor.slots_booked[dateString]) {
+        doctor.slots_booked[dateString] = doctor.slots_booked[dateString].filter(
           slot => slot !== appointment.slot
         );
         await doctor.save();

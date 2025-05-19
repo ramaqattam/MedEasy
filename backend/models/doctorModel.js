@@ -13,7 +13,7 @@ const doctorSchema = new mongoose.Schema({
     fees: {type: Number, required: true},
     address: {type: Object, required: true},
     date: {type: Number, required: true},
-    slots_bokked: {type: Object, default: {}}},{minimize: false})
+    slots_booked: {type: Object, default: {}}},{minimize: false})
 
 const dctorModel = mongoose.models.doctor || mongoose.model("doctor", doctorSchema);
 

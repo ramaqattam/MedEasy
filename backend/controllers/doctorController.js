@@ -1,10 +1,10 @@
 import validator from "validator";
-import bycrypt from "bcrypt";
+import bycrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import userModel from "../models/userModel.js";
-import dctorModel from "../models/doctorModel.js";
+import doctorModel from "../models/doctorModel.js";
 
 // Doctor Login
 const loginDoctor = async (req, res) => {

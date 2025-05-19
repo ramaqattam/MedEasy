@@ -4,7 +4,7 @@ import 'dotenv/config';
 import connectDB from './config/mongodb.js';  
 import connectCloudinary from './config/cloudinary.js';
 import adminRouter from './routes/adminRoute.js';
-import userModel from './models/userModel.js'; // ✅ add this
+import userModel from './models/userModel.js'; 
 import doctorRouter from './routes/doctorRoute.js';
 import patientRouter from './routes/patientRoute.js';
 
